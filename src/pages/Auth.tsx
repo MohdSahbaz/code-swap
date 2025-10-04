@@ -10,9 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Code2, Eye, EyeOff } from "lucide-react";
 
 export default function Auth() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,32 +19,30 @@ export default function Auth() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/");
-      }
+      if (session) navigate("/");
     });
   }, [navigate]);
+
+  // 🔹 Fake email generator
+  const getFakeEmail = (username: string) => `${username}@codeswap.com`;
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const fakeEmail = getFakeEmail(username);
+
       const { error } = await supabase.auth.signUp({
-        email,
+        email: fakeEmail,
         password,
-        options: {
-          data: {
-            username,
-          },
-          emailRedirectTo: `${window.location.origin}/`,
-        },
+        options: { data: { username } },
       });
 
       if (error) throw error;
 
       toast({
-        title: "Account created successfully! 🎉",
+        title: "Account created! 🎉",
         description: "Welcome to Code Swap!",
       });
       navigate("/");
@@ -65,16 +62,16 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      const fakeEmail = getFakeEmail(username);
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: fakeEmail,
         password,
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Welcome back!",
-      });
+      toast({ title: "Welcome back!" });
       navigate("/");
     } catch (error: any) {
       toast({
@@ -90,37 +87,50 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent">
-              <Code2 className="h-8 w-8 text-primary-foreground" />
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center gap-2 mb-4">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary to-accent">
+              <Code2 className="h-10 w-10 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
             Code Swap
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Share and discover amazing code snippets
           </p>
         </div>
 
-        <Card className="p-6 bg-card border-border">
+        {/* Card */}
+        <Card className="p-8 bg-card border-border shadow-lg rounded-2xl">
           <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-muted p-1">
+              <TabsTrigger
+                value="signin"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white rounded-full"
+              >
+                Sign In
+              </TabsTrigger>
+              <TabsTrigger
+                value="signup"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white rounded-full"
+              >
+                Sign Up
+              </TabsTrigger>
             </TabsList>
 
+            {/* Sign In Form */}
             <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-username">Username</Label>
                   <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="signin-username"
+                    type="text"
+                    placeholder="coder123"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                     className="bg-secondary border-border"
                   />
@@ -162,8 +172,9 @@ export default function Auth() {
               </form>
             </TabsContent>
 
+            {/* Sign Up Form */}
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="signup-username">Username</Label>
                   <Input
@@ -172,18 +183,6 @@ export default function Auth() {
                     placeholder="coder123"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="bg-secondary border-border"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className="bg-secondary border-border"
                   />
