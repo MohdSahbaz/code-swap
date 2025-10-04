@@ -206,11 +206,19 @@ export default function Home() {
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border max-h-60">
                         <SelectItem value="all">All Languages</SelectItem>
-                        {languages.map((lang) => (
-                          <SelectItem key={lang} value={lang}>
-                            {lang}
-                          </SelectItem>
-                        ))}
+                        {/* First placeholder / loader option */}
+                        <SelectItem value="all" disabled>
+                          {loading ? "Loading..." : "All Languages"}
+                        </SelectItem>
+
+                        {/* Language options (filter out empty strings) */}
+                        {languages
+                          .filter((lang) => lang.trim() !== "")
+                          .map((lang) => (
+                            <SelectItem key={lang} value={lang}>
+                              {lang}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>

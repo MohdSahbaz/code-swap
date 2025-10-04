@@ -72,6 +72,14 @@ export default function CreateSnippet() {
     e.preventDefault();
     if (!user) return;
 
+    if (!title || !language || !description || !code) {
+      toast({
+        title: "All fields are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
